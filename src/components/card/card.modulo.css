@@ -1,0 +1,57 @@
+.card-container {
+    display: flex;
+    flex-direction: column;
+    background-color: #fff;
+    padding: 6px;
+    margin-bottom: 16px;
+  }
+  
+  .card-image {
+    width: 10%;
+    border-radius: 10px;
+  }
+  
+  .card-details {
+    margin-top: 12px;
+  }
+  
+  .buy-button {
+    background-color: #4caf50;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 16px;
+    cursor: pointer;
+    margin-top: 8px;
+  }
+  
+  .buy-button.disabled {
+    background-color: #ccc;
+    cursor: not-allowed;
+  }
+  
+  .cart-item-actions {
+    display: flex;
+    align-items: center;
+    margin-top: 8px;
+  }
+  
+  .cart-item-actions button {
+    background-color: #4caf50;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 4px 8px;
+    cursor: pointer;
+  }
+  
+  .details-button {
+    background-color: #2196f3;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 16px;
+    cursor: pointer;
+    margin-top: 12px;
+  }
+  
