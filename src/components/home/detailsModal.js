@@ -5,8 +5,8 @@ const DetailsModal = ({ itemName }) => {
     <div className="details-modal">
       <h2> Details for {itemName}</h2>
       <p>Size: S, M, L</p>
-      <p>Color: Blue</p>
       <p>Style: Casual </p>
+      <p>Color:Diverso</p>
     </div>
   );
 };

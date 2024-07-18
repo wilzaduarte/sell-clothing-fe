@@ -1,0 +1,44 @@
+.CartItemContainer {
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid #ccc;
+    padding: 12px 0;
+  }
+  
+  .CartItemImage {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-right: 20px;
+  }
+  
+  .CartItemInfo {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .CartItemInfo p {
+    margin: 0;
+    font-size: 16px;
+  }
+  
+  .CartItemQuantity {
+    display: flex;
+    align-items: center;
+    margin-top: 8px;
+  }
+  
+  .CartItemQuantity p {
+    margin: 0 10px;
+    font-size: 16px;
+  }
+  
+  .RemoveButton {
+    margin-left: auto;
+    cursor: pointer;
+
+  }
+ 
+  

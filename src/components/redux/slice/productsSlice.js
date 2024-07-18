@@ -1,24 +1,11 @@
 import axios from "axios";
-import {createSlice, createAsyncThunk} from "@reduxjs/toolkit"
+import {createSlice} from "@reduxjs/toolkit"
 
 const initialState = {
     products : [],
     status:'idle',
     error: null,
 };
-
-export const addNewProduct = createAsyncThunk(
-    'products/addNewProduct',
-    async (newProduct, { rejectWithValue }) => {
-        try {
-            const response = await axios.post('http://localhost:8080/clothing', newProduct);
-            return response.data;
-        } catch (error) {
-            return rejectWithValue(error.response.data);
-        }
-    }
-);
-
 const productsSlice = createSlice({
     name:'products',
     initialState,
@@ -26,31 +13,17 @@ const productsSlice = createSlice({
         getAllProducts:(state,action)=>{
             state.products = action.payload;
 
-        }
+        },
+        addNewProduct:(state,action)=>{
+            state.products = [...state.products,action.payload];
+        },
     },
-    extraReducers: (builder) => {
-        builder
-            .addCase(addNewProduct.pending, (state) => {
-                state.status = 'loading';
-            })
-            .addCase(addNewProduct.fulfilled, (state, action) => {
-                state.status = 'succeeded';
-                state.products.push(action.payload);
-            })
-            .addCase(addNewProduct.rejected, (state, action) => {
-                state.status = 'failed';
-                state.error = action.payload;
-            });
-    }
-
 });
-
-
-export const fetClothingProducts = (page, pageSize, searchTerm='')=>{
+export const fetClothingProducts = (accessToken,page, pageSize, searchTerm='')=>{
     return async (dispatch)=>{
         try{
             const response = await axios.get(`http://localhost:8080/clothing`,{
-                params:{page, perPage:pageSize, name:searchTerm}
+                params:{page, perPage:pageSize, name:searchTerm},headers:{Authorization:`Bearer ${accessToken}`}
             });
           const data =  response.data;
           dispatch(productsSlice.actions.getAllProducts(data))
@@ -59,6 +32,26 @@ export const fetClothingProducts = (page, pageSize, searchTerm='')=>{
         }
     }
   };
+  export const addNewProduct = (newProduct,accessToken) => {
 
+    return async (dispatch)=> {
+        try {
+          const response = await axios.post('http://localhost:8080/clothing', newProduct, {
+            headers:{Authorization:`Bearer ${accessToken}`
+            }
+          });
+          const product = response.data.cloth
+          dispatch(productsSlice.actions.addNewProduct(product))
+         return true
+        } catch (error) {
+          if(error.response){
+            const{message}= error.response.data
+            console.log(message)
+            alert(message);
+          }
+          return false
+        }
+    }
+  };
 
   export default productsSlice.reducer

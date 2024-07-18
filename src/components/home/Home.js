@@ -5,14 +5,14 @@
  import { useDispatch, useSelector } from 'react-redux';
  import { selectCartProducts } from '../redux/selectors';
  import Modal from "react-modal";
- import {addProductToCart, removeProductFromCart} from '../redux/slice/cartSlice';
- import SlideShow from '../slidshow/SlideShow';
- import PaymenFrom from '../redux/purchase/payments';
+ import {addProductToCart, removeProductFormCart} from '../redux/slice/cartSlice';
+ import { fetchMyInfo } from '../redux/slice/userSlice';
  import { fetClothingProducts} from '../redux/slice/productsSlice';
+ import SlideShow from '../slidshow/SlideShow';
  import {AuthContext} from "../../../src/components/context"
-import { fetchMyInfo } from '../redux/slice/userSlice';
-import { roles } from '../../utils/roles';
-import {addNewProduct} from '../redux/slice/productsSlice'
+ import { roles } from '../../utils/roles';
+ import {addNewProduct} from '../redux/slice/productsSlice';
+ import  CartModal from '../modalCart/CartModal';
 
  const debouced = (func, delay) => {
   let deboucedTimer;
@@ -25,9 +25,9 @@ const Home = () => {
     const cartProducts = useSelector(selectCartProducts);
     const {products} = useSelector((state)=> state.products)
     const dispatch = useDispatch();
-    const [ isModalOpen, setIsModalOpen] = useState(false);
-    const {signOut, authState} = useContext(AuthContext);
-    const [isPaymentFromOpen, setIsPaymentFromOpen] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const {signOut} = useContext(AuthContext);
+    const [isPaymentFormOpen, setIsPaymentFormOpen] = useState(false);
     const [message, setMessager] = useState(''); 
     const [page, setPage] = useState(1);
     const [pageSize] = useState(10);
@@ -36,28 +36,26 @@ const Home = () => {
     const [newProduct, setNewProduct] = useState({name:'', stock:'', link:'', price:''});//p novo produto
     
 
-    const token = localStorage.getItem("token")
+    const token = localStorage.getItem("token")   
 
     const {myInfo} = useSelector((state)=> state.user)
-   
 
-    const deboucedSearch = () => {
-      // eslint-disable-next-line no-unused-expressions
-      debouced((term)=>{
+    const deboucedSearch = ((term) => {
         dispatch(fetClothingProducts(page, pageSize, term));
       }, 500);
-    }
+
 
     useEffect(()=>{   
+
       if (token){
         dispatch(fetchMyInfo(token));
       }   
     },[dispatch, token]);
 
 
-    useEffect(()=>{      
-      dispatch(fetClothingProducts(page, pageSize, searchTerm));
-    },[dispatch, page, pageSize, searchTerm]);
+    useEffect(()=>{ 
+      dispatch(fetClothingProducts(token, page, pageSize, searchTerm));
+    },[dispatch, page, pageSize, searchTerm, token]);
 
       useEffect(()=>{
 
@@ -65,19 +63,22 @@ const Home = () => {
        },[dispatch,page,pageSize]);
 
     const handelModal = () => {
-      setIsModalOpen(!isModalOpen)
+      if(isModalOpen){
+        
+      }
+      setIsModalOpen(!isModalOpen);
     };
 
     const handleAddToCart =(item) =>{
-      dispatch(addProductToCart(item));
+      dispatch(addProductToCart({...item, quantity:1}));
     };
 
-    const handleRemoveFRomCart =(itemId)=>{
-      dispatch(removeProductFromCart(itemId));
+    const handleRemoveFormCart =(itemId)=>{
+      dispatch(removeProductFormCart(itemId));
     };
 
-    const handlePaymentFromToggle = () => {
-      setIsPaymentFromOpen(!isPaymentFromOpen);
+    const handlePaymentFormToggle = () => {
+      setIsPaymentFormOpen(!isPaymentFormOpen);
     };
 
     const handleSuccess = () => {
@@ -108,20 +109,37 @@ const Home = () => {
     //func p lidar com mudancA de valores no formulario de um novo produto
     const handleNewProductChange = (e)=>{
       console.log(e.target.value)
-      setNewProduct({...newProduct, [e.target.name]: e.target.value});
+      
+        setNewProduct({...newProduct, [e.target.name]: e.target.value});
+      
     };
     //func p enviar o novo product ao back
     const handleAddProductSubmit=()=>{
+      if(!token) return
+      try{
       console.log('Novo product:', newProduct);
-      dispatch(addNewProduct(newProduct));
-      setIsAddProductModalOpen(false);
+      dispatch(addNewProduct({
+        ...newProduct,
+        price:newProduct && newProduct.price ?  Number(newProduct.price): 0,
+        stock:newProduct && newProduct.stock ? Number(newProduct.stock):0
+      }, token)).then((success)=> {
+        if(success){
+          alert('Novo produto adicionado com sucesso!');
+          setNewProduct({name:'',stock:'' ,link:'' ,price:'' });
+  
+        }
+      });  
+      }catch(error){
+        console.log('Erro ao adicionar novo produto:', error);
+        alert('Erro ao adicionar novo produto. tente novamente mais tarde.');
+      }
     };
 
     const handleMenuItem = (menuItem) => {
       console.log(`Menu item clicked: ${menuItem}`);
     };
 
-  
+
   return (
 
       <div>
@@ -170,35 +188,27 @@ const Home = () => {
         <button onClick={handleNexPage}>   ⮕  </button>
       </div>
 
-      <Modal isOpen={isModalOpen} onRequestClose={handelModal} style={{ top: '50%',
-    left: '50%',
-    right: 'auto',
-    bottom: 'auto',
-    marginRight: '-50%',
-    transform: 'translate(-50%, -50%)',
-    width: '70%',
-    height: '50%'
-     }}>
-      {cartProducts.map((item,index) => (
-                       <Card item={item} 
-                       addToCart={handleAddToCart} 
-                       key={index} 
-                       inModal={true} 
-                       removeFromCard={handleRemoveFRomCart}/>
-                    ))}
-                    <button onClick={handlePaymentFromToggle}> Proceed to Payment</button>
-                    {isPaymentFromOpen && <PaymenFrom cartProducts={cartProducts} onSuccess={handleSuccess} onFailure={handleFailure}/>}
-                    
-      </Modal>
+      <CartModal
+        isOpen={isModalOpen}
+        onRequestClose={handelModal}
+        cartProducts={cartProducts}
+        handleAddToCart={handleAddToCart}
+        handleRemoveFormCart={handleRemoveFormCart}
+        isPaymentFormOpen={isPaymentFormOpen}
+        handlePaymentFormToggle={handlePaymentFormToggle}
+        handleSuccess={handleSuccess}
+        handleFailure={handleFailure}
+      />
+
       {message && <div className='message'>{message}</div>}
      
       {myInfo && myInfo.role === roles.user ? (
-        <li onClick={() => handleMenuItem('All Orders')}>All Orders</li>
+        <li  onClick={() => handleMenuItem('All Orders')}><footer>&copy;Wilza Duarte</footer> </li>
       ) : <li></li> }
       {/* verificar se o usuario e administrador p mostrar o botao de adicionaro produt */}
       {myInfo?.role === roles.admin &&(
         <>
-        <button onClick={handleAddProductModal} className="add-product-button"> Add outfit </button>
+        <button onClick={handleAddProductModal} className="add-product-button"> Add Outfit </button>
         <Modal isOpen={isAddProductModalOpen} onRequestClose={handleAddProductModal} style={{
           top: '50%',
           left: '50%',
@@ -223,6 +233,7 @@ const Home = () => {
           </form>
 
         </Modal>
+
         </>
       )}
       </div> 

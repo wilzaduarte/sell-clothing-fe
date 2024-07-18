@@ -1,4 +1,4 @@
-/* eslint-disable react/jsx-no-undef */
+
 import React from 'react';
 import {useDispatch} from 'react-redux';
 import { addProductToCart } from "../redux/slice/cartSlice";
@@ -14,7 +14,7 @@ const ProductItem =({ products }) => {
       }
    
       return (
-        // eslint-disable-next-line react/jsx-no-undef
+    
         <Style.ProductContainer>
             <Style.ProductImage imageUrl={products.imageUrl}>
                 <button onClick={handleProductClick} aria-label="Add to Cart">
@@ -26,7 +26,7 @@ const ProductItem =({ products }) => {
 
             <Style.ProductInfo>
                 <p>{products.name}</p>
-                <p>R${products.price}</p>
+                <p>Esc${products.price}</p>
             </Style.ProductInfo>
         </Style.ProductContainer>
     );

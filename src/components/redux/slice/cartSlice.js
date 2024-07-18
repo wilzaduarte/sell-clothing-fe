@@ -20,59 +20,88 @@ const cartReducer = createSlice({
                 ?{...product, quantity: product.quantity +1}
                 : product
              )
-             .filter(product => product.quantity> 0) : [...state.products, {...action.payload, quantity: 1}],
+             .filter(product => product.quantity> 0) 
+             : [...state.products, {...action.payload, quantity: 1}],
             }
         },
-        removeProductFromCart:(state,action)=>{
+        removeProductFormCart:(state,action)=>{
             return {
                 ...state,
-                products:state.products.filter((product) => product.id !== action.payload),
+                products:state.products.filter((product) => 
+                    product.id !== action.payload),
             } 
         },
-        increseProductQuantity:(state,action)=>{
+        increaseProductQuantity:(state,action)=>{
             return{
                 ...state,
-                products: state.products.map(product => product.id === action.payload 
+                products: state.products.map(product => 
+                    product.id === action.payload 
                     ? {...product, quantity: product.quantity +1}
                     :product
                 ),
             };
         },
-        descreaseProducQuantity:(state,action)=>{
+        decreaseProducQuantity:(state,action)=>{
             return{
                 ...state,
                 products: state.products.map((product) =>
-            product.id === action.payload && product.quantity > 0
+                product.id === action.payload && product.quantity > 0
                 ? { ...product, quantity: product.quantity - 1 }
                 : product
                 ),
             };
-        }
-    }
-})
+        },
+        resetCart(state,action){
+          state.products = [];
+        },
+        
+        decreaseProducStock: (state, action) => {
+            const { id } = action.payload;
+            const product = state.products.find((product) => product.id === id);
+            if (product && product.stock > 0) {
+              product.stock--;
+            }
+          },
+    },
+
+});
 
 export const addProductToCart = (item) => {
     return async (dispatch) => {
         dispatch(cartReducer.actions.addProductToCart(item))
-    }
-}
+    };
+};
 
-export const removeProductFromCart = (itemId) => {
+export const removeProductFormCart = (itemId) => {
     return async (dispatch) => {
-        dispatch(cartReducer.actions.removeProductFromCart(itemId))
-    }
-}
+        dispatch(cartReducer.actions.removeProductFormCart(itemId))
+    };
+};
 
-export const increseProductQuantity = (itemId) => {
+export const increaseProductQuantity = (itemId) => {
     return async (dispatch) => {
-        dispatch(cartReducer.actions.increseProductQuantity(itemId))
-    }
-}
+        dispatch(cartReducer.actions.increaseProductQuantity(itemId))
+    };
+};
 
-export const descreaseProducQuantity = (itemId) => {
+export const decreaseProducQuantity = (itemId) => {
     return async (dispatch) => {
-        dispatch(cartReducer.actions.descreaseProducQuantity(itemId))
-    }
-}
+        
+            dispatch(cartReducer.actions.decreaseProducQuantity(itemId))
+               
+    };
+};
+
+export const decreaseProducStock = (itemId) => {
+    return async (dispatch) => {
+        dispatch(cartReducer.actions.decreaseProducStock(itemId));
+    };
+};
+
+export const resetCart = (payment) => { 
+    return async (dispatch)=>{
+        dispatch(cartReducer.actions.resetCart(payment))
+    };
+};
 
 export default cartReducer.reducer

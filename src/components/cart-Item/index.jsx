@@ -2,6 +2,7 @@ import { removeProductFromCart, increseProductQuantity, descreaseProducQuantity 
 import { useDispatch } from "react-redux"; 
 import { AiOutlineMinus, AiOutlinePlus, AiOutlineClose } from "react-icons/ai"; 
 import Styles from "./styles";
+import './styles.css';
 
 
 const CartItem = ({product}) =>{
